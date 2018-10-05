@@ -10,19 +10,40 @@ import UIKit
 import RealmSwift
 import UserNotifications
 
-class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
+class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, UISearchBarDelegate, UIPickerViewDelegate, UIPickerViewDataSource {
+    
+    @IBOutlet weak var categoryPicker: UIPickerView!
+    
+    @IBOutlet weak var searchBar: UISearchBar!
     
     @IBOutlet weak var tableView: UITableView!
+    
+    var seach_execute: Bool = false
     
     let realm = try! Realm()
     
     var taskArray = try! Realm().objects(Task.self).sorted(byKeyPath: "date", ascending: false)
+
+    var searchResults: Results<Task>!
+
+    var categoryArray = try! Realm().objects(Category.self).sorted(byKeyPath: "id", ascending: false)
     
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
-        tableView.delegate = self
-        tableView.dataSource = self
+        self.tableView.delegate = self
+        self.tableView.dataSource = self
+        self.categoryPicker.delegate = self
+        self.categoryPicker.dataSource = self
+        // カテゴリPicker初期値設定
+        self.categoryPicker.showsSelectionIndicator = true
+        self.categoryPicker.selectRow(0, inComponent: 0, animated: true)
+        // カテゴリ検索バー初期値設定
+        self.searchBar.delegate = self
+        self.searchBar.searchBarStyle = UISearchBarStyle.default
+        self.searchBar.placeholder = "カテゴリー検索"
+        self.searchBar.setValue("キャンセル", forKey: "_cancelButtonText")
+        self.tableView.tableHeaderView = searchBar
     }
 
     override func didReceiveMemoryWarning() {
@@ -30,10 +51,58 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         // Dispose of any resources that can be recreated.
     }
     
+    // 検索ボタンが押された時に呼ばれる
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+        self.view.endEditing(true)
+        searchBar.showsCancelButton = true
+        self.categorySearch(category_name: self.searchBar.text)
+    }
+    
+    // キャンセルボタンが押された時に呼ばれる
+    func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
+        self.searchBar.showsCancelButton = false
+        self.view.endEditing(true)
+        self.searchBar.text = ""
+        self.seach_execute = false
+        self.tableView.reloadData()
+    }
+    
+    // テキストフィールド入力開始前に呼ばれる
+    func searchBarShouldBeginEditing(_ searchBar: UISearchBar) -> Bool {
+        searchBar.showsCancelButton = true
+        return true
+    }
+    
+    private func categorySearch(category_name: String!) {
+        self.searchResults = self.realm.objects(Task.self).filter("category.name == %@", category_name!)
+        self.seach_execute = true
+        self.tableView.reloadData()
+    }
+    
+    // UIPickerViewの列の数
+    func numberOfComponents(in pickerView: UIPickerView) -> Int {
+        return 1
+    }
+    
+    // UIPickerViewの行数、要素の全数
+    func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
+        return self.categoryArray.count
+    }
+    
+    // UIPickerViewに表示する配列
+    func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
+        return self.categoryArray[row].name
+    }
+    
+    // UIPickerViewのRowが選択された時の挙動
+    func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
+        self.categorySearch(category_name: self.categoryArray[row].name)
+    }
+    
     // MARK: UITableViewDataSourceプロトコルのメソッド
     // データの数（＝セルの数）を返すメソッド
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return taskArray.count
+        return self.seach_execute ? self.searchResults.count : self.taskArray.count
     }
     
     // 各セルの内容を返すメソッド
@@ -42,7 +111,9 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath)
         
         // Cellに値を設定する.
-        let task = taskArray[indexPath.row]
+        let task = self.seach_execute ? self.searchResults[indexPath.row] : self.taskArray[indexPath.row]
+        // let task = self.taskArray[indexPath.row]
+        
         cell.textLabel?.text = task.title
         
         let formatter = DateFormatter()
@@ -71,7 +142,8 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         if editingStyle == .delete {
             
             // 削除されたタスクを取得する
-            let task = self.taskArray[indexPath.row]
+            let task = self.seach_execute ? self.searchResults[indexPath.row] : self.taskArray[indexPath.row]
+            // let task = self.taskArray[indexPath.row]
             
             // ローカル通知をキャンセルする
             let center = UNUserNotificationCenter.current()
@@ -79,7 +151,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
             
             // データベースから削除する
             try! realm.write {
-                self.realm.delete(self.taskArray[indexPath.row])
+                self.realm.delete(task)
                 tableView.deleteRows(at: [indexPath], with: .fade)
             }
             
@@ -100,16 +172,13 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         
         if segue.identifier == "cellSegue" {
             let indexPath = self.tableView.indexPathForSelectedRow
-            inputViewController.task = taskArray[indexPath!.row]
+            inputViewController.task = self.seach_execute ? self.searchResults[indexPath!.row] : self.taskArray[indexPath!.row]
         }
         else {
             let task = Task()
             task.date = Date()
-            
-            let allTasks = realm.objects(Task.self)
-            if allTasks.count != 0 {
-                task.id = allTasks.max(ofProperty:"id")! + 1
-            }
+            let allTasks = self.realm.objects(Task.self)
+            task.id = allTasks.count == 0 ? 1 : allTasks.max(ofProperty:"id")! + 1
             inputViewController.task = task
         }
     }

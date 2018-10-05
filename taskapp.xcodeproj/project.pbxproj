@@ -15,6 +15,8 @@
 		A48B37FC216459550004D884 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = A48B37FA216459550004D884 /* LaunchScreen.storyboard */; };
 		A48B380421645EAA0004D884 /* InputViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A48B380321645EAA0004D884 /* InputViewController.swift */; };
 		A4BD5057216466FF008D0341 /* Task.swift in Sources */ = {isa = PBXBuildFile; fileRef = A4BD5056216466FF008D0341 /* Task.swift */; };
+		A4D721682164C28D008F57C9 /* Category.swift in Sources */ = {isa = PBXBuildFile; fileRef = A4D721672164C28D008F57C9 /* Category.swift */; };
+		A4D7216A2164C31D008F57C9 /* CategoryInputViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A4D721692164C31D008F57C9 /* CategoryInputViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -29,6 +31,8 @@
 		A48B37FD216459550004D884 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		A48B380321645EAA0004D884 /* InputViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputViewController.swift; sourceTree = "<group>"; };
 		A4BD5056216466FF008D0341 /* Task.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Task.swift; sourceTree = "<group>"; };
+		A4D721672164C28D008F57C9 /* Category.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Category.swift; sourceTree = "<group>"; };
+		A4D721692164C31D008F57C9 /* CategoryInputViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryInputViewController.swift; sourceTree = "<group>"; };
 		D4577868A374BC3259E24D60 /* Pods_taskapp.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_taskapp.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -78,10 +82,12 @@
 				A48B37F1216459540004D884 /* AppDelegate.swift */,
 				A48B37F3216459540004D884 /* ViewController.swift */,
 				A48B37F5216459540004D884 /* Main.storyboard */,
+				A4D721692164C31D008F57C9 /* CategoryInputViewController.swift */,
 				A48B37F8216459550004D884 /* Assets.xcassets */,
 				A48B37FA216459550004D884 /* LaunchScreen.storyboard */,
 				A48B37FD216459550004D884 /* Info.plist */,
 				A48B380321645EAA0004D884 /* InputViewController.swift */,
+				A4D721672164C28D008F57C9 /* Category.swift */,
 			);
 			path = taskapp;
 			sourceTree = "<group>";
@@ -209,9 +215,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				A4BD5057216466FF008D0341 /* Task.swift in Sources */,
+				A4D721682164C28D008F57C9 /* Category.swift in Sources */,
 				A48B380421645EAA0004D884 /* InputViewController.swift in Sources */,
 				A48B37F4216459540004D884 /* ViewController.swift in Sources */,
 				A48B37F2216459540004D884 /* AppDelegate.swift in Sources */,
+				A4D7216A2164C31D008F57C9 /* CategoryInputViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
