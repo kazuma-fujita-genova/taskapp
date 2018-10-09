@@ -73,11 +73,8 @@ class CategoryInputViewController: UIViewController, UITableViewDelegate, UITabl
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         // 再利用可能な cell を得る
         let cell = tableView.dequeueReusableCell(withIdentifier: "CategoryCell", for: indexPath)
-        
-        // Cellに値を設定する.
         let category = categoryArray[indexPath.row]
         cell.textLabel?.text = category.name
-        
         return cell
     }
 
@@ -100,7 +97,7 @@ class CategoryInputViewController: UIViewController, UITableViewDelegate, UITabl
                 let category = self.categoryArray[indexPath.row]
                 let tasks = self.realm.objects(Task.self).filter("category == %@", category)
                 for task in tasks {
-                    // task.category = Category?
+                    task.category = nil
                 }
                 // let tasks = self.realm.objects(Task.self).filter("category_id == %@", category.id)
                 // for task in tasks {

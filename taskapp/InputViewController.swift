@@ -24,7 +24,8 @@ class InputViewController: UIViewController, UIPickerViewDelegate, UIPickerViewD
     
     let realm = try! Realm()
     
-    var categoryArray = try! Realm().objects(Category.self).sorted(byKeyPath: "id", ascending: false)
+    // var categoryArray = try! Realm().objects(Category.self).sorted(byKeyPath: "id", ascending: false)
+    var categoryArray: Array<Category>!
     
     var category_row: Int = 0
     
@@ -49,6 +50,10 @@ class InputViewController: UIViewController, UIPickerViewDelegate, UIPickerViewD
         titleTextField.text = task.title
         contentsTextView.text = task.contents
         datePicker.date = task.date
+        
+        // カテゴリ初期値設定
+        self.initCategories()
+        
         var category_index: Int = 0
         if task.category != nil {
             // タスクからカテゴリ取得->配列index取得
@@ -57,6 +62,20 @@ class InputViewController: UIViewController, UIPickerViewDelegate, UIPickerViewD
         }
         // カテゴリPicker初期値設定
         categoryPicker.selectRow(category_index, inComponent: 0, animated: true)
+    }
+    
+    private func initCategories() {
+        // カテゴリ初期値設定
+
+        self.categoryArray = Array(try! Realm().objects(Category.self).sorted(byKeyPath: "id", ascending: false))
+        
+        if self.categoryArray != nil {
+            let category = Category()
+            category.id = 0
+            category.name = "選択してください"
+            
+            self.categoryArray.insert(category, at: 0)
+        }
     }
 
     override func didReceiveMemoryWarning() {
@@ -148,12 +167,14 @@ class InputViewController: UIViewController, UIPickerViewDelegate, UIPickerViewD
     
     // UIPickerViewの行数、要素の全数
     func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
-        return self.categoryArray.count
+        self.initCategories()
+        return self.categoryArray != nil ? self.categoryArray.count : 0
     }
     
     // UIPickerViewに表示する配列
     func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
-        return self.categoryArray[row].name
+        self.initCategories()
+        return self.categoryArray != nil ? self.categoryArray[row].name : ""
     }
     
     // UIPickerViewのRowが選択された時の挙動

@@ -26,7 +26,8 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
 
     var searchResults: Results<Task>!
 
-    var categoryArray = try! Realm().objects(Category.self).sorted(byKeyPath: "id", ascending: false)
+    // var categoryArray = try! Realm().objects(Category.self).sorted(byKeyPath: "id", ascending: false)
+    var categoryArray: Array<Category>! = Array()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -36,6 +37,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         self.categoryPicker.delegate = self
         self.categoryPicker.dataSource = self
         // カテゴリPicker初期値設定
+        self.initCategories()
         self.categoryPicker.showsSelectionIndicator = true
         self.categoryPicker.selectRow(0, inComponent: 0, animated: true)
         // カテゴリ検索バー初期値設定
@@ -43,7 +45,20 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         self.searchBar.searchBarStyle = UISearchBarStyle.default
         self.searchBar.placeholder = "カテゴリー検索"
         self.searchBar.setValue("キャンセル", forKey: "_cancelButtonText")
-        self.tableView.tableHeaderView = searchBar
+        // self.tableView.tableHeaderView = searchBar
+    }
+    
+    private func initCategories() {
+        // カテゴリ初期値設定
+        self.categoryArray = Array(try! Realm().objects(Category.self).sorted(byKeyPath: "id", ascending: false))
+        
+        if self.categoryArray != nil {
+            let category = Category()
+            category.id = 0
+            category.name = "選択してください"
+
+            self.categoryArray.insert(category, at: 0)
+        }
     }
 
     override func didReceiveMemoryWarning() {
@@ -86,17 +101,24 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     
     // UIPickerViewの行数、要素の全数
     func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
-        return self.categoryArray.count
+        self.initCategories()
+        return self.categoryArray != nil ? self.categoryArray.count : 0
     }
     
     // UIPickerViewに表示する配列
     func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
-        return self.categoryArray[row].name
+        self.initCategories()
+        return self.categoryArray != nil ? self.categoryArray[row].name : ""
     }
     
     // UIPickerViewのRowが選択された時の挙動
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
-        self.categorySearch(category_name: self.categoryArray[row].name)
+        if row == 0 {
+            self.seach_execute = false
+            self.tableView.reloadData()
+        } else {
+            self.categorySearch(category_name: self.categoryArray[row].name)
+        }
     }
     
     // MARK: UITableViewDataSourceプロトコルのメソッド
@@ -186,6 +208,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         tableView.reloadData()
+        self.categoryPicker.reloadAllComponents()
     }
 }
 
